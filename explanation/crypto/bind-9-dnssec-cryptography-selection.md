@@ -15,7 +15,7 @@ options {
 };
 ```
 
-This can be quickly checked with the help of `dig`. Right after you installed `bind9`, you can probe ask it about the `isc.org` domain:
+This can be quickly checked with the help of `dig`. Right after you installed `bind9`, you can run `dig` and ask it about the `isc.org` domain:
 
 ```text
 $ dig @127.0.0.1 isc.org +dnssec +multiline
