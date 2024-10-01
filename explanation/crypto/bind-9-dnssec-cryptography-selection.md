@@ -46,7 +46,7 @@ isc.org.		300 IN RRSIG A 13 2 300 (
 ;; MSG SIZE  rcvd: 183
 ```
 
-We can see that a `RRSIG` DNSSEC record was returned, but the key information in this output is the `ad` flag near the top. That stands for "authenticated data", and means that the DNSSEC records in the response were validated.
+We can see that a `RRSIG` DNSSEC record was returned, but the important information in this output is the `ad` flag near the top. That stands for "authenticated data", and means that the DNSSEC records in the response were validated.
 
 To see an example where this verification fails, we can use the `www.dnssec-failed.org` domain, which is specially crafted for this:
 
