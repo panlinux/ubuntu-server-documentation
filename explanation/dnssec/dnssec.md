@@ -33,6 +33,53 @@ DNSSEC suddenly made it more attractive and secure to store other types of infor
 
 For example, imagine if the SSH fingerprints for a host you are logging into for the first time were also stored in DNS, and secured via DNSSEC. Instead of being prompted if you recognize the fingerprint, and wish to proceed, all this verification could happen in the background via DNSSEC and the SSHFP resource record published in the DNS zone for that host. OpenSSH is already capable of this via the configuration option `VerifyHostKeyDNS`.
 
+
+## Where does the DNSSEC validation happen?
+
+DNSSEC validation is the act of, besides fetching the DNS records that were requested, their signature is also obtained, and verified. Who is responsible for that?
+
+It depends.
+
+Let's analyze the simple scenario of a system on a local network performing a DNS query for a domain.
+
+(picture)
+laptop, LAN, recursive DNS server in LAN which queries internet DNS servers
+(/picture)
+
+Here we have:
+
+ * An Ubuntu system, like a desktop, configured to use a local DNS server.
+ * A DNS server configured to perform recursive queries on behalf of the clients from the local network
+
+Let's zoom in a little bit on that Ubuntu system:
+
+(picture)
+app -> stub resolver -> queries sent to a single recursive DNS server
+(/picture)
+
+When an application needs to translate a hostname to an IP address, it uses standard glibc calls for that job. That is called a stub resolver, or simply a "dns client". This is a very simple client in the sense that it does not perform recursive queries: it expects to dispatch the DNS query to a recursive DNS server, which will do all the hard work.
+
+In Ubuntu, the default stub resolver is systemd-resolved. That's a daemon, running locally, and listening on port 53/udp on IP 127.0.0.53, and the system is configured to use that as its nameserver via /etc/resolv.conf:
+
+    nameserver 127.0.0.53
+    options edns0 trust-ad
+
+This stub resolver has its own configuration for which recursive DNS servers to use. That can be seen with the command `resolvectl`. For example:
+
+    Global
+             Protocols: -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+      resolv.conf mode: stub
+
+    Link 12 (eth0)
+        Current Scopes: DNS
+             Protocols: +DefaultRoute -LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+    Current DNS Server: 10.10.17.1
+           DNS Servers: 10.10.17.1
+            DNS Domain: lxd
+
+This configuration is usually provided via DHCP, but could also be set via other means. In this particular example, the DNS server that the stub resolver (systemd-resolved) will use for all queries that go out on that network interface is 10.10.17.1. The output above also has `DNSSEC=no/unsupported`: we will get back to that in a moment.
+
+
 # References
 
  * DNSSEC - What Is It and Why Is It Important: https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en
