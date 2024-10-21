@@ -36,7 +36,7 @@ For example, imagine if the SSH fingerprints for a host you are logging into for
 
 ## Where does the DNSSEC validation happen?
 
-DNSSEC validation is the act of, besides fetching the DNS records that were requested, their signature is also obtained, and verified. Who is responsible for that?
+DNSSEC validation is fetching the DNS data that was requested, their signatures, and performing the validation of that data. Who is responsible for that?
 
 It depends.
 
