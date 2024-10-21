@@ -93,10 +93,11 @@ Well, any DNS server can perform the validation. The more, the better. Let's loo
 
 When a recursive DNS server is also performing DNSSEC validation, it's called a Validating Resolver. That will typically be the DNS server on your local network.
 
-(picture)
-laptop, LAN, recursive DNS server in LAN querying external DNS servers
-the local DNS server is also marked as being a Validating Resolver
-(/picture)
+
+    (picture)
+    laptop, LAN, recursive DNS server in LAN querying external DNS servers
+    the local DNS server is also marked as being a Validating Resolver
+    (/picture)
 
 
 
