@@ -36,6 +36,33 @@ DNSSEC introduces a set of new Resource Records. Here are the most important one
  * DS: Delegation Signer. This stores a secure delegation, and is used to build the authentication chain to child DNS zones. This makes it possible for a parent zone to "vouch" for its child zone.
  * NSEC, NSEC3, NSEC3PARAM: Next Secure record. These records are used to prove that a DNS name does not exist.
 
+As an example, when a query is performed by a client that declares it understands DNSSEC, and the resource record it's querying for has a signature, the RRSIG is also returned:
+
+    $ dig @1.1.1.1 +dnssec -t MX isc.org
+
+    ; <<>> DiG 9.18.28-0ubuntu0.24.04.1-Ubuntu <<>> @1.1.1.1 +dnssec -t MX isc.org
+    ; (1 server found)
+    ;; global options: +cmd
+    ;; Got answer:
+    ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 51256
+    ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 3, AUTHORITY: 0, ADDITIONAL: 1
+
+    ;; OPT PSEUDOSECTION:
+    ; EDNS: version: 0, flags: do; udp: 1232
+    ;; QUESTION SECTION:
+    ;isc.org.                       IN      MX
+
+    ;; ANSWER SECTION:
+    isc.org.                300     IN      MX      5 mx.pao1.isc.org.
+    isc.org.                300     IN      MX      10 mx.ams1.isc.org.
+    isc.org.                300     IN      RRSIG   MX 13 2 300 20241029080338 20241015071431 27566 isc.org. LG/cvFmZ8jLz+CM14foaCtwsyCTwKXfVBZV2jcl2UV8zV79QRLs0YXJ3 sjag1vYCqc+Q5AwUi2DB8L/wZR6EJQ==
+
+    ;; Query time: 199 msec
+    ;; SERVER: 1.1.1.1#53(1.1.1.1) (UDP)
+    ;; WHEN: Tue Oct 22 16:44:33 UTC 2024
+    ;; MSG SIZE  rcvd: 187
+
+
 ## Other uses
 
 DNSSEC suddenly made it more attractive and secure to store other types of information in DNS zones. Although it has always been possible to store SRV, TXT and other generic records in DNS, now these can be signed, and can thus be relied upon to be true. A well known initiative that leverages DNSSEC for this purpose is DANE: DNS-based Authentication of Named Entities (RFC 6394, RFC 6698, RFC 7671, RFC 7672, RFC 7673).
