@@ -28,6 +28,8 @@ The question then becomes, how to trust that this public key is authentic? Turns
 
 The public key cryptography behind SSL/TLS is similar, but there we have the Certificate Authority entity (CA) that issues the certificates and vouches for them. Every single web browser or other SSL/TLS client or operating system needs to have a "bootstrap" list of CAs that it will trust by default, and there are dozens. In DNSSEC, the only bootstrap public key the resolver needs is the root zone one. It's as if there was only one trusted CA.
 
+In the references section there is a very nice and simplified 12-step example on how a Validating DNS Resolver would go about returning the result of a query and validating it using DNSSEC.
+
 ## New resource records (RRs)
 DNSSEC introduces a set of new Resource Records. Here are the most important ones:
 
