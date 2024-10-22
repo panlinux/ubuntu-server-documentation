@@ -1,11 +1,12 @@
 # DNSSEC
 
 DNS (Domain Name System) is a mapping system between names and IP (Internet Protocol) addresses. Besides this main purpose that allows us to use friendly names instead of a sequence of numbers to reach a web site, it also stores a lot of information about a particular domain, such as:
- * who owns it
+ * point of contact
  * when it was last updated
  * what are the authoritative name servers for the domain
  * what are the mail exchangers for the domain (i.e., which systems are responsible for email for this domain)
  * mapping of host names to IP addresses, and vice-versa
+ * information about other services, such as kerberos realms, LDAP servers, etc (usually on internal domains only)
  * and more
 
 When DNS was first conceived, security wasn't a top priority yet. At its origins, DNS is susceptible to multiple vulnerabilities, and has many weaknesses. Most of them are a consequence of spoofing: there is no guarantee that the reply you got to a DNS query a) was not tampered with; b) came from the true source.
@@ -26,6 +27,14 @@ DNSSEC is based on public key cryptography, meaning that every DNS zone has a pu
 The question then becomes, how to trust that this public key is authentic? Turns out the key is also signed: it's signed by the parent zone's key, which is also signed by its parent, and so on, all the way to the top: the root DNS zone. Those last keys are trusted implicitly, and all DNS resolvers have it as an anchor. This sequence of keys and signatures all the way to the top is called the chain of trust.
 
 The public key cryptography behind SSL/TLS is similar, but there we have the Certificate Authority entity (CA) that issues the certificates and vouches for them. Every single web browser or other SSL/TLS client or operating system needs to have a "bootstrap" list of CAs that it will trust by default, and there are dozens. In DNSSEC, the only bootstrap public key the resolver needs is the root zone one. It's as if there was only one trusted CA.
+
+## New resource records (RRs)
+DNSSEC introduces a set of new Resource Records. Here are the most important ones:
+
+ * RRSIG: Resource Record Signature. Each RRSIG record matches a corresponding Resource Record, i.e., it's the digital cryptographic signature of that Resource Record.
+ * DNSKEY: There are several types of keys used in DNSSEC, and this record is used to store the public key in each case.
+ * DS: Delegation Signer. This stores a secure delegation, and is used to build the authentication chain to child DNS zones. This makes it possible for a parent zone to "vouch" for its child zone.
+ * NSEC, NSEC3, NSEC3PARAM: Next Secure record. These records are used to prove that a DNS name does not exist.
 
 ## Other uses
 
