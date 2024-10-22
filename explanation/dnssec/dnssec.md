@@ -110,8 +110,10 @@ The key aspect of this deployment type is that the network between the stub reso
 
 Still, this is a valid and very useful scenario, and good enough for most cases. And it has the extra benefit that the DNSSEC validation is done only once, at the resolver, for all clients on the network.
 
+### Local DNSSEC validation
+Some stub resolvers, like `systemd-resolved`, can perform DNSSEC validation by themselves. In this scenario, there is no insecure network path between the resolver and the dns client, as they are on the same system. But since the stub resolver will be doing the validation, that means more DNS queries, and a higher latency, because now it's not just one query, but multiple ones: a query for the actual desired record, than another query for the digital signature, then the public key, than it has to validate that key, etc. And if another client on the network happens to be making the same query, it will also have to repeat all those steps.
 
-### Local DNSSEC
+In general, local DNSSEC validation is only required in more specific secure environments.
 
 # References
 
