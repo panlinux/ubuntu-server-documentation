@@ -223,4 +223,5 @@ But even when the validation is local, simpler clients might not get the full pi
  * Tool to visualize the DNSSEC chain of trust of a domain: https://dnsviz.net/
  * DANE: https://en.wikipedia.org/wiki/DNS-based_Authentication_of_Named_Entities
  * RFC 4255 - Using DNS to Securely Publish Secure Shell (SSH) Key Fingerprints: https://datatracker.ietf.org/doc/html/rfc4255
+ * Simplified 12-step DNSSEC validation process: https://bind9.readthedocs.io/en/v9.18.24/dnssec-guide.html#the-12-step-dnssec-validation-process-simplified
 
