@@ -191,6 +191,32 @@ There is a tiny difference in the output:
 
 This shows that local DNSSEC validation was applied, and the result is authenticated.
 
+## What happens when DNSSEC validation fails
+When DNSSEC validation fails, how this error is presented to the user depends on multiple factors.
+
+For example, if the DNS client is not performing DNSSEC validation, and relying on a Validating Resolver for that, typically what the client will see is a generic failure. For example:
+
+    $ resolvectl query www.dnssec-failed.org
+    www.dnssec-failed.org: resolve call failed: Could not resolve 'www.dnssec-failed.org', server or network returned error SERVFAIL
+
+The Validating Resolver logs, however, will have more details about what happened:
+
+    Oct 22 17:14:50 n-dns named[285]: validating dnssec-failed.org/DNSKEY: no valid signature found (DS)
+    Oct 22 17:14:50 n-dns named[285]: no valid RRSIG resolving 'dnssec-failed.org/DNSKEY/IN': 68.87.68.244#53
+    ...
+    Oct 22 17:14:52 n-dns named[285]: broken trust chain resolving 'www.dnssec-failed.org/AAAA/IN': 68.87.72.244#53
+
+In contrast, when DNSSEC validation is being performed locally, the error is more specific:
+
+    $ sudo resolvectl dnssec eth0 true
+    $ resolvectl query www.dnssec-failed.org
+    www.dnssec-failed.org: resolve call failed: DNSSEC validation failed: no-signature
+
+But even when the validation is local, simpler clients might not get the full picture, and still just return a generic error:
+
+    $ host www.dnssec-failed.org
+    Host www.dnssec-failed.org not found: 2(SERVFAIL)
+
 # References
 
  * DNSSEC - What Is It and Why Is It Important: https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en
