@@ -173,7 +173,7 @@ Notice the `Data is authenticated: no` in the result.
 
 Now we enable local DNSSEC validation:
 
-    $ resolvectl dnssec eth0 true
+    $ sudo resolvectl dnssec eth0 true
 
 And repeat the query:
 
