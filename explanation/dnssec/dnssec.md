@@ -151,6 +151,46 @@ Some stub resolvers, like `systemd-resolved`, can perform DNSSEC validation by t
 
 In general, local DNSSEC validation is only required in more specific secure environments.
 
+As an example, let's perform the same query using `systemd-resolved` with and without local DNSSEC validation enabled.
+
+Without local DNSSEC validation. First, let's show it's disabled indeed:
+
+    $ resolvectl dnssec
+    Global: no
+    Link 44 (eth0): no
+
+Now we perform the query:
+
+    $ resolvectl query --type=MX isc.org
+    isc.org IN MX 10 mx.ams1.isc.org                            -- link: eth0
+    isc.org IN MX 5 mx.pao1.isc.org                             -- link: eth0
+
+    -- Information acquired via protocol DNS in 229.5ms.
+    -- Data is authenticated: no; Data was acquired via local or encrypted transport: no
+    -- Data from: network
+
+Notice the `Data is authenticated: no` in the result.
+
+Now we enable local DNSSEC validation:
+
+    $ resolvectl dnssec eth0 true
+
+And repeat the query:
+
+    $ resolvectl query --type=MX isc.org
+    isc.org IN MX 5 mx.pao1.isc.org                             -- link: eth0
+    isc.org IN MX 10 mx.ams1.isc.org                            -- link: eth0
+
+    -- Information acquired via protocol DNS in 3.0ms.
+    -- Data is authenticated: yes; Data was acquired via local or encrypted transport: no
+    -- Data from: network
+
+There is a tiny difference in the output:
+
+    -- Data is authenticated: yes
+
+This shows that local DNSSEC validation was applied, and the result is authenticated.
+
 # References
 
  * DNSSEC - What Is It and Why Is It Important: https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en
