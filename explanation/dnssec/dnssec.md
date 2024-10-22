@@ -36,30 +36,30 @@ For example, imagine if the SSH fingerprints for a host you are logging into for
 
 ## Where does the DNSSEC validation happen?
 
-DNSSEC validation is fetching the DNS data that was requested, their signatures, and performing the validation of that data. Who is responsible for that?
+DNSSEC validation is the act of fetching the DNS data that was requested, their signatures, and performing the cryptographic validation of that data. Who is responsible for that?
 
 It depends.
 
 Let's analyze the simple scenario of a system on a local network performing a DNS query for a domain.
 
-(picture)
-laptop, LAN, recursive DNS server in LAN which queries internet DNS servers
-(/picture)
+    (picture)
+    laptop, LAN, recursive DNS server in LAN which queries internet DNS servers
+    (/picture)
 
 Here we have:
 
- * An Ubuntu system, like a desktop, configured to use a local DNS server.
- * A DNS server configured to perform recursive queries on behalf of the clients from the local network
+ * An Ubuntu system, like a desktop, configured to use a DNS server in the local network.
+ * A DNS server configured to perform recursive queries on behalf of the clients from the local network.
 
 Let's zoom in a little bit on that Ubuntu system:
 
-(picture)
-app -> stub resolver -> queries sent out to recursive DNS servers
-(/picture)
+    (picture)
+    app -> stub resolver -> queries sent out to recursive DNS servers
+    (/picture)
 
 When an application needs to translate a hostname to an IP address, it uses standard glibc calls for that job. That is called a stub resolver, or simply a "dns client". This is a very simple client in the sense that it does not perform recursive queries: it expects to dispatch the DNS query to a recursive DNS server, which will do all the hard work.
 
-In Ubuntu, the default stub resolver is systemd-resolved. That's a daemon, running locally, and listening on port 53/udp on IP 127.0.0.53, and the system is configured to use that as its nameserver via `/etc/resolv.conf`:
+In Ubuntu, the default stub resolver is `systemd-resolved`. That's a daemon, running locally, and listening on port 53/udp on IP 127.0.0.53. The system is configured to use that as its nameserver via `/etc/resolv.conf`:
 
     nameserver 127.0.0.53
     options edns0 trust-ad
@@ -77,28 +77,34 @@ This stub resolver has its own configuration for which recursive DNS servers to 
            DNS Servers: 10.10.17.1
             DNS Domain: lxd
 
-This configuration is usually provided via DHCP, but could also be set via other means. In this particular example, the DNS server that the stub resolver (systemd-resolved) will use for all queries that go out on that network interface is 10.10.17.1. The output above also has `DNSSEC=no/unsupported`: we will get back to that in a moment.
+This configuration is usually provided via DHCP, but could also be set via other means. In this particular example, the DNS server that the stub resolver (`systemd-resolved`) will use for all queries that go out on that network interface is 10.10.17.1. The output above also has `DNSSEC=no/unsupported`: we will get back to that in a moment, but it means that `systemd-resolved` is not performing the DNSSEC cryptographic validation.
 
 Given what we have:
- * application
+ * an application
  * stub resolver ("dns client")
  * recursive DNS server in the local network
- * authoritative DNS servers in the internet
+ * several other DNS servers in the internet that will be queried by our recursive DNS server
 
 Where does the DNSSEC validation happen? Who is responsible?
 
-Well, any DNS server can perform the validation. The more, the better. Let's look at two scenarios, and what it means in each case.
+Well, any DNS server can perform the validation. Let's look at two scenarios, and what it means in each case.
 
 ### Validating Resolver
 
-When a recursive DNS server is also performing DNSSEC validation, it's called a Validating Resolver. That will typically be the DNS server on your local network.
-
+When a recursive DNS server is also performing DNSSEC validation, it's called a *Validating Resolver*. That will typically be the DNS server on your local network, your company's, or in some cases even your ISP's.
 
     (picture)
     laptop, LAN, recursive DNS server in LAN querying external DNS servers
     the local DNS server is also marked as being a Validating Resolver
     (/picture)
 
+In Ubuntu, the default configuration of the `bind9` DNS server is to act as a validating resolver. This can be seen in `/etc/bind/named.conf.options` after installing the `bind9` package:
+
+    options {
+        ...
+        dnssec-validation auto;
+        ...
+    };
 
 
 # References
