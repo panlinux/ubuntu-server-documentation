@@ -106,6 +106,12 @@ In Ubuntu, the default configuration of the `bind9` DNS server is to act as a va
         ...
     };
 
+The key aspect of this deployment type is that the network between the stub resolved and the validating resolver has to be trusted, otherwise this is not useful. The Validating Resolver will be performing all the DNSSEC checks, and only returning a response if it was validated, but that response could have been altered on that "last mile" network segment.
+
+Still, this is a valid and very useful scenario, and good enough for most cases. And it has the extra benefit that the DNSSEC validation is done only once, at the resolver, for all clients on the network.
+
+
+### Local DNSSEC
 
 # References
 
