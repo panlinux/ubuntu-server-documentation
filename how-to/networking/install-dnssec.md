@@ -90,11 +90,11 @@ Depending on the zone size, signing all records can take longer.
 
 A few interesting events can be seen in the logs above:
 
-  * Keys were generated
-  * The *example.internal* zone became signed
-  * Since the zone changed, its serial number was incremented (started as 1, now it's 3)
+  * Keys were generated for the *example.internal* zone.
+  * The *example.internal* zone became signed.
+  * Since the zone changed, its serial number was incremented (started as 1, now it's 3).
 
-
+This is the bulk of the work. This zone is now signed, and maintained automatically by bind9 using the *default* dnssec policy.
 
 # References
 
