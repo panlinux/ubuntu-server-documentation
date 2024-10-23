@@ -94,7 +94,58 @@ A few interesting events can be seen in the logs above:
   * The *example.internal* zone became signed.
   * Since the zone changed, its serial number was incremented (started as 1, now it's 3).
 
+The DNSSEC keys are kept in `/var/cache/bind`:
+
+    -rw-r--r-- 1 bind bind  413 Oct 23 20:50 Kexample.internal.+013+48112.key
+    -rw------- 1 bind bind  215 Oct 23 20:50 Kexample.internal.+013+48112.private
+    -rw-r--r-- 1 bind bind  647 Oct 23 20:50 Kexample.internal.+013+48112.state
+
 This is the bulk of the work. This zone is now signed, and maintained automatically by bind9 using the *default* dnssec policy.
+
+## Verification
+
+The zone that was just signed is almost ready to serve DNSSEC. Let's perform some verification steps.
+
+As it is now, this zone *example.internal* is "disconnected" from the parent zone. Its name was made up for this how-to, but even if it represented a realm domain, it would still be missing the connection to the parent zone. Remember that DNSSEC relies on the chain of trust, and the parent of our zone needs to be able to vouch for it.
+
+Before taking that step, however, it's important to verify if everything else is working. In particular, we would want to perform some DNSSEC queries, and perform validation. A good tool to perform this validation is `delv`.
+
+`delv` is similar to `dig`, but it will perform validation on the results using the same internal resolver and validator logic as the bind9 server itself.
+
+Since our zone is disconnected, we need to tell `delv` to use the public key created for the zone as a trusted anchor, and to not try to reach out to the root servers of the internet.
+
+First, copy the public zone key somewhere else so it can be edited. For example:
+
+    cp /var/cache/bind/Kexample.internal.+013+48112.key /tmp/example.key
+
+That file will have some comments and the top, and then have a line that starts with the zone name, like this (the full key was truncated below for brevity):
+
+    example.internal. 3600 IN DNSKEY 257 3 13 jkmS5hfyY3nSww....
+
+We need to make some changes here:
+
+ * Remove the comment lines from the top.
+ * Edit that line and replace the `3600 IN DNSKEY` text with `static-key`.
+ * The key material after the `13` number must be enclosed in double quotes (`"`).
+ * The line needs to end with a `;`.
+ * And finally the line needs to be inside a `trust-anchors` block.
+
+ In the end, the `/tmp/example.key` file should look like this:
+
+    trust-anchors {
+        example.internal. static-key 257 3 13 "jkmS5hfyY3nSww....";
+    };
+
+Now `delv` can be used to query the *example.internal* zone and perform DNSSEC validation:
+
+    $ delv @127.0.0.1 -a /tmp/example.key +root=example.internal noble.example.internal +multiline
+    ; fully validated
+    noble.example.internal. 86400 IN A 192.168.1.11
+    noble.example.internal. 86400 IN RRSIG A 13 3 86400 (
+                                    20241106131533 20241023195023 48112 example.internal.
+                                    5fL4apIwCD9kt4XbzzlLxMXY3mj8Li1WZu3qzlcBpERp
+                                    lXPgLODbRrWyp7L81xEFnfhecKtEYv+6Y0Xa5iVRug== )
+
 
 # References
 
@@ -102,3 +153,4 @@ This is the bulk of the work. This zone is now signed, and maintained automatica
  * Easy-Start Guide for Signing Authoritative Zones: https://bind9.readthedocs.io/en/stable/dnssec-guide.html#signing
  * Creating a Custom DNSSEC Policy: https://bind9.readthedocs.io/en/stable/dnssec-guide.html#signing-custom-policy
  * Detailed DNSSEC chapter from the bind9 documentation: https://bind9.readthedocs.io/en/stable/chapter5.html
+ * `delv` manual page: https://manpages.ubuntu.com/manpages/noble/man1/delv.1.html
