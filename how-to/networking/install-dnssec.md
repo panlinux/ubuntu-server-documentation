@@ -43,3 +43,40 @@ Check if the service can resolve the name `noble.example.internal`:
     $ dig @127.0.0.1 +short noble.example.internal
     192.168.1.11
 
+## Enabling DNSSEC
+Enabling DNSSEC for a zone involves multiple steps. Thankfully for us, the bind9 DNS server takes care of all of them by default, automatically, leaving very little for us to do. Converting a zone in this way means at least generating new keys, and signing all the resource records of the zone. But that is only "day 1": such a zone must be maintained properly. Keys must be rotated, expiration dates must be set, etc. The current versions of bind9 take care of that with a dnssec policy, and of course there is a default one that can be used from the get go.
+
+To migrate our *example.internal* zone to DNSSEC, we just need to add two lines to its definition in `/etc/bind/named.conf.local`, so that it looks like this:
+
+    zone "example.internal" {
+        type master;
+        file "/etc/bind/db.example.internal";
+        dnssec-policy default;
+        inline-signing yes;
+    };
+
+What was added:
+
+ * `dnssec-policy default`: Use the default DNSSEC policy. A DNSSEC policy includes settings for key rotation, default TTL, and many others.
+ * `inline-signing yes`: keep a separate file for the signed zone.
+
+After this change, there is no need to restart the service, but it needs to be told to reload its configuration. This can be done with the `rndc` tool:
+
+    sudo rndc reconfig
+
+The server will immediately notice the new configuration and start the process to sign the *example.internal* zone. The journal logs will show the progress, and can be inspected with the command:
+
+    sudo journalctl -u named.service -f
+
+The logs will show something similar to this:
+
+    named[8063]: zone example.internal/IN (signed): reconfiguring zone keys
+    named[8063]: keymgr: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) created for policy default
+    named[8063]: Fetching example.internal/ECDSAP256SHA256/47175 (CSK) from key repository.
+    named[8063]: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) is now published
+    named[8063]: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) is now active
+    named[8063]: managed-keys-zone: Key 20326 for zone . is now trusted (acceptance timer complete)
+    named[8063]: zone example.internal/IN (signed): next key event: 22-Oct-2024 22:28:48.293
+    named[8063]: zone example.internal/IN (signed): sending notifies (serial 9)
+
+Depending on the zone size, signing all records can take longer.
