@@ -24,7 +24,7 @@ Create the file `/var/lib/bind/db.example.internal` with these contents:
 
     $TTL 86400      ; 1 day
     example.internal.       IN SOA  example.internal. root.example.internal. (
-                                    7          ; serial
+                                    1          ; serial
                                     43200      ; refresh (12 hours)
                                     900        ; retry (15 minutes)
                                     1814400    ; expire (3 weeks)
@@ -70,16 +70,29 @@ The server will immediately notice the new configuration and start the process t
 
 The logs will show something similar to this:
 
-    named[8063]: zone example.internal/IN (signed): reconfiguring zone keys
-    named[8063]: keymgr: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) created for policy default
-    named[8063]: Fetching example.internal/ECDSAP256SHA256/47175 (CSK) from key repository.
-    named[8063]: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) is now published
-    named[8063]: DNSKEY example.internal/ECDSAP256SHA256/47175 (CSK) is now active
-    named[8063]: managed-keys-zone: Key 20326 for zone . is now trusted (acceptance timer complete)
-    named[8063]: zone example.internal/IN (signed): next key event: 22-Oct-2024 22:28:48.293
-    named[8063]: zone example.internal/IN (signed): sending notifies (serial 9)
+    named[3246]: zone example.internal/IN (unsigned): loaded serial 1
+    named[3246]: zone example.internal/IN (signed): loaded serial 1
+    named[3246]: zone example.internal/IN (signed): receive_secure_serial: unchanged
+    named[3246]: zone example.internal/IN (signed): sending notifies (serial 1)
+    named[3246]: zone example.internal/IN (signed): reconfiguring zone keys
+    named[3246]: keymgr: DNSKEY example.internal/ECDSAP256SHA256/44911 (CSK) created for policy default
+    named[3246]: Fetching example.internal/ECDSAP256SHA256/44911 (CSK) from key repository.
+    named[3246]: DNSKEY example.internal/ECDSAP256SHA256/44911 (CSK) is now published
+    named[3246]: DNSKEY example.internal/ECDSAP256SHA256/44911 (CSK) is now active
+    named[3246]: zone example.internal/IN (signed): next key event: 23-Oct-2024 22:47:12.544
+    named[3246]: any newly configured zones are now loaded
+    named[3246]: running
+    named[3246]: resolver priming query complete: success
+    named[3246]: managed-keys-zone: Key 20326 for zone . is now trusted (acceptance timer complete)
+    named[3246]: zone example.internal/IN (signed): sending notifies (serial 3)
 
 Depending on the zone size, signing all records can take longer.
+
+A few interesting events can be seen in the logs above:
+
+  * Keys were generated
+  * The *example.internal* zone became signed
+  * Since the zone changed, its serial number was incremented (started as 1, now it's 3)
 
 
 
