@@ -11,7 +11,7 @@ Nevertheless, here is a quick set of steps to reach that state for an example do
 
 First, install the bind9 package:
 
-   sudo apt install bind9 -y
+    sudo apt install bind9 -y
 
 Edit `/etc/bind/named.conf.local` and add this *zone* block:
 
