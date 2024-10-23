@@ -9,9 +9,9 @@ The starting point for this how-to is an existing bind9 DNS server deployed with
 
 Nevertheless, here is a quick set of steps to reach that state for an example domain called `example.internal`.
 
- * First, install the bind9 package:
+First, install the bind9 package:
 
-  sudo apt install bind9 -y
+   sudo apt install bind9 -y
 
  * edit `/etc/bind/named.conf.local` and add this *zone* block:
 
