@@ -13,14 +13,14 @@ First, install the bind9 package:
 
    sudo apt install bind9 -y
 
- * edit `/etc/bind/named.conf.local` and add this *zone* block:
+Edit `/etc/bind/named.conf.local` and add this *zone* block:
 
     zone "example.internal" {
         type master;
         file "/etc/bind/db.example.internal";
     };
 
- * Create the file `/etc/bind/db.example.internal` with these contents:
+Create the file `/etc/bind/db.example.internal` with these contents:
 
     $TTL 86400      ; 1 day
     example.internal.       IN SOA  example.internal. root.example.internal. (
@@ -34,11 +34,11 @@ First, install the bind9 package:
     ns                      IN  A       192.168.1.10
     noble                   IN  A       192.168.1.11
 
- * restart the service:
+Restart the service:
 
     sudo systemctl restart named
 
- * Check if the service can resolve the name `noble.example.internal`:
+Check if the service can resolve the name `noble.example.internal`:
 
     $ dig @127.0.0.1 +short noble.example.internal
     192.168.1.11
