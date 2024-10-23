@@ -98,7 +98,7 @@ This is the bulk of the work. This zone is now signed, and maintained automatica
 
 # References
 
- * The DNSSEC Guide from bind9: https://bind9.readthedocs.io/en/v9.18.24/dnssec-guide.html
- * Easy-Start Guide for Signing Authoritative Zones: https://bind9.readthedocs.io/en/v9.18.24/dnssec-guide.html#signing
- * Creating a Custom DNSSEC Policy: https://bind9.readthedocs.io/en/v9.18.24/dnssec-guide.html#signing-custom-policy
- * Detailed DNSSEC chapter from the bind9 documentation: https://bind9.readthedocs.io/en/v9.18.24/chapter5.html
+ * The DNSSEC Guide from bind9: https://bind9.readthedocs.io/en/stable/dnssec-guide.html
+ * Easy-Start Guide for Signing Authoritative Zones: https://bind9.readthedocs.io/en/stable/dnssec-guide.html#signing
+ * Creating a Custom DNSSEC Policy: https://bind9.readthedocs.io/en/stable/dnssec-guide.html#signing-custom-policy
+ * Detailed DNSSEC chapter from the bind9 documentation: https://bind9.readthedocs.io/en/stable/chapter5.html
