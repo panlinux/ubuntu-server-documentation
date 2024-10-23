@@ -5,7 +5,7 @@ DNSSEC is a set of security extensions to DNS which allow DNS data to be verifie
 This how-to will show how to enable DNSSEC for an existing zone in your bind9 DNS server deployment.
 
 ## Starting point
-The starting point for this how-to is an existing bind9 DNS server deployed with an authoritative zone. For details on how to deploy bind9 in this fashion, please see the [DNS How-To](https://github.com/panlinux/ubuntu-server-documentation/blob/bind9-dnssec/how-to/networking/install-dns.md).
+The starting point for this how-to is an existing bind9 DNS server deployed with an authoritative zone. For details on how to deploy bind9 in this fashion, please see the [DNS How-To](https://github.com/panlinux/ubuntu-server-documentation/blob/bind9-dnssec/how-to/networking/install-dns.md). One key difference from that guide, however, is that we need the zone file to be in a directory where bind9 can write to, like `/var/lib/bind`, instead of `/etc/bind`.
 
 Nevertheless, here is a quick set of steps to reach that state for an example domain called `example.internal`.
 
@@ -17,10 +17,10 @@ Edit `/etc/bind/named.conf.local` and add this *zone* block:
 
     zone "example.internal" {
         type master;
-        file "/etc/bind/db.example.internal";
+        file "/var/lib/bind/db.example.internal";
     };
 
-Create the file `/etc/bind/db.example.internal` with these contents:
+Create the file `/var/lib/bind/db.example.internal` with these contents:
 
     $TTL 86400      ; 1 day
     example.internal.       IN SOA  example.internal. root.example.internal. (
@@ -50,7 +50,7 @@ To migrate our *example.internal* zone to DNSSEC, we just need to add two lines 
 
     zone "example.internal" {
         type master;
-        file "/etc/bind/db.example.internal";
+        file "/var/lib/bind/db.example.internal";
         dnssec-policy default;
         inline-signing yes;
     };
@@ -80,6 +80,8 @@ The logs will show something similar to this:
     named[8063]: zone example.internal/IN (signed): sending notifies (serial 9)
 
 Depending on the zone size, signing all records can take longer.
+
+
 
 # References
 
