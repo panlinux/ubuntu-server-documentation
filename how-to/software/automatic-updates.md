@@ -79,3 +79,18 @@ Once the package is installed, edit `/etc/apticron/apticron.conf`, to set the em
 EMAIL="root@example.com"
 ```
 
+## Reboots
+TBD
+
+## Including other origins
+TBD
+
+## Fleet considerations
+TBD
+
+## Integration with Pro
+TBD
+
+## When should it be disabled
+TBD
+
