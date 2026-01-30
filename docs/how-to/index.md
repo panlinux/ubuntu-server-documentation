@@ -78,6 +78,21 @@ software
 data-and-storage
 ```
 
+## File services
+
+The File services section covers the following:
+
+* **File transfers with FTP**
+* **Network File System (NFS) sharing**
+
+Samba file shares is covered in **Samba**
+```{toctree}
+:hidden:
+:titlesonly:
+
+file-services
+```
+
 ## Mail services
 
 Our {ref}`how-to-mail-services` section shows you how to set up:
